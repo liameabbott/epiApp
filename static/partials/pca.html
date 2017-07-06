@@ -1,0 +1,25 @@
+<div ng-controller="PCAController">
+	<div class="row">
+		<div class="col-md-10 col-lg-10 col-xl-10">
+			<pca-plot data="pcaData" xlabel="x_pcs.selected" ylabel="y_pcs.selected"></pca-plot>
+		</div>
+		<div class="col-md-2 col-lg-2 col-xl-2">
+	    	<div class="form-group">
+	    		<label>Samples</label>
+	    		<select class="form-control" ng-model="sample_set.selected" ng-options="s as s for s in sample_set.options"></select>
+	    	</div>
+	    	<div class="form-group">
+	    		<label>Colors</label>
+	    		<select class="form-control" ng-model="colors.selected" ng-options="c as c for c in colors.options"></select>
+	    	</div>
+	    	<div class="form-group">
+	    		<label>X-Axis</label>
+	    		<select class="form-control" ng-model="x_pcs.selected" ng-options="x as x for x in x_pcs.options"></select>
+	    	</div>
+	    	<div class="form-group">
+	    		<label>Y-Axis</label>
+	    		<select class="form-control" ng-model="y_pcs.selected" ng-options="y as y for y in y_pcs.options"></select>
+	    	</div>
+	    </div>
+	</div>
+</div>
