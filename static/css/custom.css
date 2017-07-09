@@ -41,3 +41,11 @@ pca-plot .axis-label {
 	font-size: 20px;
 	font-weight: bold;
 }
+
+.form-control {
+	font-size: 12px!important;
+}
+
+#pca-plot>iframe {
+	border: none;
+}

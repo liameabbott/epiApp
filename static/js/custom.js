@@ -35,9 +35,28 @@ myApp.directive('pcaPlot', function($parse) {
 				right: 20
 			};
 
-			//d3.select(element[0])
-			 // .append('div')
-			  //.classed('svg-container', true);
+			var colors = [
+				[31, 119, 180], 
+				[174, 199, 232], 
+				[255, 127, 14], 
+				[255, 187, 120],  
+             	[44, 160, 44], 
+             	[152, 223, 138], 
+             	[214, 39, 40], 
+             	[255, 152, 150],  
+             	[148, 103, 189], 
+             	[197, 176, 213], 
+             	[140, 86, 75], 
+             	[196, 156, 148],  
+             	[227, 119, 194], 
+             	[247, 182, 210], 
+             	[127, 127, 127],
+              	[199, 199, 199],  
+             	[188, 189, 34], 
+             	[219, 219, 141],
+              	[23, 190, 207], 
+             	[158, 218, 229]
+             ];
 
 			var svg = d3.select(element[0])
 						.append('div')
@@ -56,12 +75,12 @@ myApp.directive('pcaPlot', function($parse) {
 			var scaled_width = $('pca-plot>.svg-container>svg').width();
 			var scaled_height = $('pca-plot>.svg-container>svg').height();
 
-
 			scope.$watch('data', function(new_data, old_data) {
 
 				if (new_data) {
 
-					svg.selectAll('*').remove();
+					svg.selectAll('*')
+					   .remove();
 
 					var xextent = d3.extent(new_data, function(d) { return d.x; });
 					var yextent = d3.extent(new_data, function(d) { return d.y; });
@@ -83,6 +102,26 @@ myApp.directive('pcaPlot', function($parse) {
 								  .tickSizeOuter(0)
 								  .ticks(5)
 								  .tickFormat(d3.format('.2f'));
+
+					var legend = svg.append('g')
+								    .attr('class', 'legend');
+								    //.attr('height', 400)
+								    //.attr('width', 400)
+								    //.attr('x', 400)
+								    //.attr('y', 400);
+
+					legend.selectAll('circle')
+						  .data(colors)
+						  .enter()
+						  .append('circle')
+						  .attr('transform', 'translate(' + width/2 + ',' + height/2 + ')')
+						  //.attr('x', 600)
+						  //.attr('y', function(d, i) { return i*20; })
+						  .attr('width', 10)
+						  .attr('height', 10)
+						  .style('fill', function(d) {
+						      return d3.rgb(d[0], d[1], d[2]);
+						  });
 
 					svg.append('text')
 					   .attr('class', 'axis-label')
@@ -116,6 +155,9 @@ myApp.directive('pcaPlot', function($parse) {
 					   .attr('r', 2.5)
 					   .attr('cx', function(d) { return xscale(d.x); })
 					   .attr('cy', function(d) { return yscale(d.y); })
+					   .style('fill', function(d) { 
+					   		return d3.color(d3.rgb(colors[d.color][0], colors[d.color][1], colors[d.color][2])); 
+					   	})
 					   .on('mouseover', function(d) {
 
 					   		var text = [
@@ -151,20 +193,43 @@ myApp.directive('pcaPlot', function($parse) {
 myApp.controller('PCAController', ['$scope', '$http', 
 	
 	function($scope, $http) {
+
+		var sample_set_map = {
+			'All Epi25': 'all_epi',
+			'All Epi25 + 1KG': 'all_epi_1kg'
+		}
 		
 		$scope.sample_set = {
-			selected: 'all_epi',
+			selected: 'All Epi25',
 			options: [
-				'all_epi',
-				'all_epi_1kg'
+				'All Epi25',
+				'All Epi25 + 1KG'
 			]
+		};
+
+		var color_map = {
+			'Capture Set': 'capture_set',
+			'Case/control': 'case_control',
+			'Cohort': 'cohort',
+			'Epilepsy Subtype': 'epilepsy_subtype',
+			'Fingerprint Gender': 'fingerprint_gender',
+			'Primary Disease': 'primary_disease',
+			'Batch': 'project',
+			'Project Name': 'project_name',
+			'Reported Gender': 'reported_gender'
 		};
 
 		$scope.colors = {
 			selected: 'Case/control',
 			options: [
+				'Capture Set',
 				'Case/control',
-				'Batch'
+				'Epilepsy Subtype',
+				'Fingerprint Gender',
+				'Reported Gender',
+				'Primary Disease',
+				'Batch',
+				'Project Name'
 			]
 		};
 
@@ -200,43 +265,80 @@ myApp.controller('PCAController', ['$scope', '$http',
 			]
 		};
 
-		$scope.response = [];
+		$scope.display_1kg = {
+			selected: '"1KG"',
+			options: [
+				'1KG',
+				'pop',
+				'super_pop'
+			]
+		};
 
-		function reset_data($scope) {
-			return $scope.response.filter(function(row) {
-				return (row.sample_set === $scope.sample_set.selected);
+		//$scope.rawData = [];
+		//$scope.colorLevels = [];
+
+		/*function reset_data() {
+			$scope.pcaData = $scope.rawData.filter(function(row) {
+				return (row.sample_set === sample_set_map[$scope.sample_set.selected]);
 			}).map(function(row) {
+				var c = $scope.colorLevels[color_map[$scope.colors.selected]].indexOf(row[color_map[$scope.colors.selected]]);
+				if (c == -1) {
+					console.log(row);
+					var c = 19;
+				}
 				return {
 					'sample': row.sample,
 					'x': row[$scope.x_pcs.selected],
-					'y': row[$scope.y_pcs.selected]
+					'y': row[$scope.y_pcs.selected],
+					'color': $scope.colorLevels[color_map[$scope.colors.selected]].indexOf(row[color_map[$scope.colors.selected]])
 				};
 			});
+		}*/
+
+		function reset_data() {
+			$http({
+				method: 'GET',
+				url: '/data/pca',
+				params: {
+					'sample_set': sample_set_map[$scope.sample_set.selected],
+					'color': color_map[$scope.colors.selected],
+					'x': $scope.x_pcs.selected,
+					'y': $scope.y_pcs.selected,
+					'display_1kg': $scope.display_1kg.selected
+				}
+			}).then(function(response) {
+				$scope.pcaData = response.data.results.map(function(row) {
+					return {
+						'sample': row['sample'],
+						'x': row['x'],
+						'y': row['y'],
+						'color': response.data.levels.indexOf(row.color)
+					};
+				});
+			})
 		}
 
-		$http({
+		/*$http({
 			method: 'GET',
-			url: '/data/pca'
+			url: '/data/sample_factor_levels'
 		}).then(function(response) {
-			$scope.response = response.data;
-			$scope.pcaData = reset_data($scope);
-		});
+			$scope.colorLevels = response.data;
+		}).then(function() {
+			reset_data();
+		});*/
 
-		$scope.$watch('sample_set.selected', function() {
-			$scope.pcaData = reset_data($scope);
-		});
+		/*$http({
+			method: 'GET',
+			url: '/data/pca',
+		}).then(function(response) {
+			$scope.rawData = response.data;
+			console.log($scope.rawData);
+			reset_data();
+		});*/
 
-		$scope.$watch('colors.selected', function() {
-			$scope.pcaData = reset_data($scope);
-		});
-
-		$scope.$watch('x_pcs.selected', function() {
-			$scope.pcaData = reset_data($scope);
-		});
-
-		$scope.$watch('y_pcs.selected', function() {
-			$scope.pcaData = reset_data($scope);
-		});
+		$scope.$watchGroup(['sample_set.selected', 'colors.selected', 'x_pcs.selected', 'y_pcs.selected', 'display_1kg'], function() {
+			reset_data();
+		})
 
 	}
 ]);

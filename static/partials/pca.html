@@ -1,7 +1,7 @@
 <div ng-controller="PCAController">
 	<div class="row">
 		<div class="col-md-10 col-lg-10 col-xl-10">
-			<pca-plot data="pcaData" xlabel="x_pcs.selected" ylabel="y_pcs.selected"></pca-plot>
+			<canvas pca-plot pdf="pdf"></canvas>
 		</div>
 		<div class="col-md-2 col-lg-2 col-xl-2">
 	    	<div class="form-group">
@@ -10,15 +10,22 @@
 	    	</div>
 	    	<div class="form-group">
 	    		<label>Colors</label>
-	    		<select class="form-control" ng-model="colors.selected" ng-options="c as c for c in colors.options"></select>
+	    		<select class="form-control" ng-model="factors.selected" ng-options="f as f for f in factors.options"></select>
 	    	</div>
 	    	<div class="form-group">
-	    		<label>X-Axis</label>
+	    		<label>1KG Labels</label>
+	    		<select class="form-control" ng-model="display_1kg.selected" ng-options="k as k for k in display_1kg.options"></select>
+	    	</div>
+	    	<div class="form-group">
+	    		<label>X-axis</label>
 	    		<select class="form-control" ng-model="x_pcs.selected" ng-options="x as x for x in x_pcs.options"></select>
 	    	</div>
 	    	<div class="form-group">
-	    		<label>Y-Axis</label>
+	    		<label>Y-axis</label>
 	    		<select class="form-control" ng-model="y_pcs.selected" ng-options="y as y for y in y_pcs.options"></select>
+	    	</div>
+	    	<div>
+	    		<pca-legend colors="colors"
 	    	</div>
 	    </div>
 	</div>
